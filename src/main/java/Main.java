@@ -3,8 +3,11 @@ import zero.GameApp;
 import zero.Key;
 
 public class Main extends GameApp {
+    private static final int WIN_SCORE = 20;
+
     private Player alien = new Player(300, 340);
     private boolean playing = false;
+    private boolean won = false;
     private double debrisX = 200;
     private double debrisY = 0;
     private double debrisSpeed = 180;
@@ -17,6 +20,7 @@ public class Main extends GameApp {
         debrisY = 0;
         debrisSpeed = 180;
         score = 0;
+        won = false;
     }
 
     @Override
@@ -40,6 +44,12 @@ public class Main extends GameApp {
             debrisX = 30 + Math.random() * (width() - 60);
             score++;
             debrisSpeed += 5;
+            if (score >= WIN_SCORE) {
+                won = true;
+                lastScore = score;
+                playing = false;
+                return;
+            }
         }
 
         double dx = alien.getX() - debrisX;
@@ -56,10 +66,14 @@ public class Main extends GameApp {
             background(Color.rgb(15, 15, 35));
             fill(Color.rgb(255, 224, 145));
             textSize(32);
-            textCentered("SPACE DODGER", width() / 2, height() / 2 - 60);
+            if (won) {
+                textCentered("YOU WIN!", width() / 2, height() / 2 - 60);
+            } else {
+                textCentered("SPACE DODGER", width() / 2, height() / 2 - 60);
+            }
             fill(Color.WHITE);
             textSize(16);
-            textCentered("Use LEFT / RIGHT arrows to dodge debris!", width() / 2, height() / 2 - 10);
+            textCentered("Use LEFT / RIGHT arrows. Dodge " + WIN_SCORE + " pieces of debris to win!", width() / 2, height() / 2 - 10);
             textCentered("Press SPACE to start", width() / 2, height() / 2 + 20);
             if (lastScore > 0) {
                 textCentered("Last score: " + lastScore, width() / 2, height() / 2 + 60);
@@ -74,7 +88,7 @@ public class Main extends GameApp {
         circle(alien.getX(), alien.getY(), 40);
         fill(Color.WHITE);
         textSize(18);
-        text("Score: " + score, 20, 30);
+        text("Score: " + score + " / " + WIN_SCORE, 20, 30);
     }
 
     public static void main(String[] args) {
