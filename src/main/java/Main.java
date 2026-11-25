@@ -1,6 +1,7 @@
 import zero.Color;
 import zero.GameApp;
 import zero.Key;
+import zero.ui.Button;
 
 public class Main extends GameApp {
     private static final int WIN_SCORE = 20;
@@ -13,22 +14,41 @@ public class Main extends GameApp {
     private double debrisSpeed = 180;
     private int score = 0;
     private int lastScore = 0;
+    private double seed = 12345;
+
+    @Override
+    public void setup() {
+        Button restartButton = new Button("Restart");
+        restartButton.onClick(() -> restart());
+        controls(restartButton);
+    }
+
+    private double nextRandom() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280.0;
+    }
 
     private void resetGame() {
         alien.reset(width() / 2, height() - 60);
-        debrisX = 50 + Math.random() * (width() - 100);
+        debrisX = 50 + nextRandom() * (width() - 100);
         debrisY = 0;
         debrisSpeed = 180;
         score = 0;
         won = false;
     }
 
+    private void restart() {
+        resetGame();
+        lastScore = 0;
+        playing = true;
+    }
+
     @Override
     public void update(double seconds) {
+        nextRandom();
         if (!playing) {
             if (keyPressed(Key.SPACE) || keyPressed(Key.ENTER)) {
-                resetGame();
-                playing = true;
+                restart();
             }
             return;
         }
@@ -41,7 +61,7 @@ public class Main extends GameApp {
         debrisY += debrisSpeed * seconds;
         if (debrisY > height()) {
             debrisY = 0;
-            debrisX = 30 + Math.random() * (width() - 60);
+            debrisX = 30 + nextRandom() * (width() - 60);
             score++;
             debrisSpeed += 5;
             if (score >= WIN_SCORE) {
@@ -54,7 +74,7 @@ public class Main extends GameApp {
 
         double dx = alien.getX() - debrisX;
         double dy = alien.getY() - debrisY;
-        if (Math.hypot(dx, dy) < 30) {
+        if (Math.sqrt(dx * dx + dy * dy) < 30) {
             lastScore = score;
             playing = false;
         }
@@ -74,7 +94,7 @@ public class Main extends GameApp {
             fill(Color.WHITE);
             textSize(16);
             textCentered("Use LEFT / RIGHT arrows. Dodge " + WIN_SCORE + " pieces of debris to win!", width() / 2, height() / 2 - 10);
-            textCentered("Press SPACE to start", width() / 2, height() / 2 + 20);
+            textCentered("Press SPACE or click Restart to play", width() / 2, height() / 2 + 20);
             if (lastScore > 0) {
                 textCentered("Last score: " + lastScore, width() / 2, height() / 2 + 60);
             }
