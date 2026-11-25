@@ -74,7 +74,7 @@ public class Main extends GameApp {
 
         double dx = alien.getX() - debrisX;
         double dy = alien.getY() - debrisY;
-        if (Math.sqrt(dx * dx + dy * dy) < 30) {
+        if (dx * dx + dy * dy < 900) {
             lastScore = score;
             playing = false;
         }
